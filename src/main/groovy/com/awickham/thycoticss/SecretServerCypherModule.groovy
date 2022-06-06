@@ -8,6 +8,7 @@ import com.morpheusdata.cypher.CypherModule
 import com.morpheusdata.cypher.CypherObject
 import com.morpheusdata.cypher.util.RestApiUtil
 import com.morpheusdata.cypher.util.ServiceResponse
+import java.net.URLEncoder
 import groovy.util.logging.Slf4j
 
 @Slf4j
@@ -22,7 +23,7 @@ class SecretServerCypherModule implements CypherModule {
     public CypherObject read(String relativeKey, String path, Long leaseTimeout, String leaseObjectRef, String createdBy) {
         String key = relativeKey
         if(path != null) {
-            key = path + "/" + key
+            key = "${path}/${key}"
         }
         if(relativeKey.startsWith("config/")) {
             return null
@@ -32,10 +33,13 @@ class SecretServerCypherModule implements CypherModule {
             String thycoticPassword = cypher.read("thycoticss/config/password").value
             String thycoticToken = SecretServerHelper.getAuthToken(thycoticUrl, thycoticUsername, thycoticPassword)
 
-            String thycoticPath = "/v1/secrets/0/?secretPath=${relativeKey}"
+            String encodedKey = java.net.URLEncoder.encode(relativeKey, 'UTF-8')
+            String thycoticPath = "v1/secrets/0/?secretPath=" + encodedKey;
+            log.info("Retrieving secret from ${thycoticPath}")
+
             RestApiUtil.RestOptions restOptions = new RestApiUtil.RestOptions()
-            restOptions.headers = new LinkedHashMap<>()
-            restOptions.headers.put("Authorization", "Bearer ${thycoticToken}")
+            restOptions.apiToken = thycoticToken
+
             try {
                 ServiceResponse resp = RestApiUtil.callApi(thycoticUrl, thycoticPath, null, null, restOptions, 'GET')
                 if(resp.getSuccess()) {
@@ -45,7 +49,7 @@ class SecretServerCypherModule implements CypherModule {
                     thycoticResult.shouldPersist = false
                     return thycoticResult
                 } else {
-                    log.error("Error Fetching cypher key [${thycoticPath}] ${resp}")
+                    log.error("Error fetching cypher key: ${resp}")
                     return null //throw exception?
                 }
             } catch(Exception ex) {
@@ -57,14 +61,23 @@ class SecretServerCypherModule implements CypherModule {
 
     @Override
     public CypherObject write(String relativeKey, String path, String value, Long leaseTimeout, String leaseObjectRef, String createdBy) {
-        // Nothing to do. Secrets will be managed in Secret Server, not through Morpheus.
-        return true
+        String key = relativeKey;
+        if(path != null) {
+            key = "${path}/${key}";
+        }
+        if(relativeKey.startsWith("config/")) {
+            log.info("Writing to: ${key}")
+            return new CypherObject(key, value, leaseTimeout, leaseObjectRef, createdBy)
+        } else {
+            // Nothing to do. Secrets will be managed in Secret Server, not through Morpheus.
+            return null
+        }
     }
 
     @Override
     public boolean delete(String relativeKey, String path, CypherObject object) {
         // Nothing to do. Secrets will be managed in Secret Server, not through Morpheus.
-        return true
+        return null
     }
 
     @Override

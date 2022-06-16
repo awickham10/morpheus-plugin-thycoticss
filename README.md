@@ -1,6 +1,6 @@
 ## Thycotic Secret Server Plugin
 
-This is a Morpheus plugin for interacting with `Thycotic Secret Server`. This plugin enables the ability to store secure credentials for various clouds, tasks, and integrations remotely in a secure store external to Morpheus and Cypher. This utilizes Secret Server's API.
+This is a Morpheus plugin for interacting with `Thycotic Secret Server`. This plugin enables the ability to store secure credentials for various tasks remotely in a secure store external to Morpheus and Cypher. This utilizes Secret Server's API.
 
 ### Using With Cypher
 Create the below Cypher keys to configure the integration. Once these keys have been created, secrets can be read in tasks using the cypher.read function. Any field can be read by using the field slug. Common field slugs include: domain, username, password.

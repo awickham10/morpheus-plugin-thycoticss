@@ -10,8 +10,6 @@ class ThycoticPlugin extends Plugin {
 
     @Override
     void initialize() {
-        SecretServerCredentialProvider secretServerCredentialProvider = new SecretServerCredentialProvider(this, morpheus)
-        this.pluginProviders.put("thycoticss", secretServerCredentialProvider)
         this.pluginProviders.put("thycoticss-cypher", new SecretServerCypherProvider(this, morpheus))
         this.setName("Thycotic Secret Server")
     }

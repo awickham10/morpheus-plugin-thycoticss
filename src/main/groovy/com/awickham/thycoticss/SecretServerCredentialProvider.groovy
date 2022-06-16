@@ -219,10 +219,10 @@ class SecretServerCredentialProvider implements CredentialProvider {
     @Override
     List<OptionType> getIntegrationOptionTypes() {
         return [
-                new OptionType(code: 'conjur.serviceUrl', name: 'Service URL', inputType: OptionType.InputType.TEXT, fieldName: 'serviceUrl', fieldLabel: 'API Url', fieldContext: 'domain', displayOrder: 0),
-                new OptionType(code: 'conjur.serviceUsername', name: 'Service Username', inputType: OptionType.InputType.TEXT, fieldName: 'serviceUsername', fieldLabel: 'Username', fieldContext: 'domain', displayOrder: 1),
-                new OptionType(code: 'conjur.servicePassword', name: 'Service Password', inputType: OptionType.InputType.PASSWORD, fieldName: 'servicePassword', fieldLabel: 'Password', fieldContext: 'domain', displayOrder: 2),
-                new OptionType(code: 'conjur.secretPath', name: 'Secret Path', inputType: OptionType.InputType.TEXT,placeHolderText: 'morpheus-credentials/', fieldName: 'secretPath', fieldLabel: 'Secret Path', fieldContext: 'config', displayOrder: 3)
+                new OptionType(code: 'thycoticss.serviceUrl', name: 'Service URL', inputType: OptionType.InputType.TEXT, fieldName: 'serviceUrl', fieldLabel: 'API Url', fieldContext: 'domain', displayOrder: 0),
+                new OptionType(code: 'thycoticss.serviceUsername', name: 'Service Username', inputType: OptionType.InputType.TEXT, fieldName: 'serviceUsername', fieldLabel: 'Username', fieldContext: 'domain', displayOrder: 1),
+                new OptionType(code: 'thycoticss.servicePassword', name: 'Service Password', inputType: OptionType.InputType.PASSWORD, fieldName: 'servicePassword', fieldLabel: 'Password', fieldContext: 'domain', displayOrder: 2),
+                new OptionType(code: 'thycoticss.secretPath', name: 'Secret Path', inputType: OptionType.InputType.TEXT,placeHolderText: 'morpheus-credentials/', fieldName: 'secretPath', fieldLabel: 'Secret Path', fieldContext: 'config', displayOrder: 3)
         ]
     }
 
@@ -274,16 +274,5 @@ class SecretServerCredentialProvider implements CredentialProvider {
     @Override
     String getName() {
         return "Thycotic Secret Server"
-    }
-
-    static protected formatApiName(String name) {
-        String rtn = name
-        if(rtn) {
-            rtn = rtn.replace(' - ', '-')
-            rtn = rtn.replace(' ', '-')
-            rtn = rtn.replace('/', '-')
-            rtn = rtn.toLowerCase()
-        }
-        return URLEncoder.encode(rtn)
     }
 }

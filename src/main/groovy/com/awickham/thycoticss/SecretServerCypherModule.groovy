@@ -91,11 +91,7 @@ class SecretServerCypherModule implements CypherModule {
 
     @Override
     public String getUsage() {
-        StringBuilder usage = new StringBuilder()
-
-        usage.append("This allows secret data to be fetched from a Thycotic Secret Server integration. This can be configured in the thycoticss/config key setup")
-
-        return usage.toString()
+        return "This allows secret data to be fetched from a Thycotic Secret Server integration. This can be configured in the thycoticss/config key setup"
     }
 
     @Override

@@ -18,12 +18,12 @@ class SecretServerHelper {
             grant_type: "password"
         ]
         restOptions.contentType = 'form'
-        log.info("Getting token with request: ${restOptions.body}")
+        log.debug("Getting token with request: ${restOptions.body}")
         com.morpheusdata.cypher.util.ServiceResponse resp = RestApiUtil.callApi(thycoticUrl, "SecretServer/oauth2/token", null, null, restOptions, "POST")
         if(resp.getSuccess()) {
             JsonSlurper slurper = new JsonSlurper()
             Object authResp = slurper.parseText(resp.getContent())
-            log.info("Retrieved ${authResp.token_type} token from Secret Server")
+            log.debug("Retrieved ${authResp.token_type} token from Secret Server")
 
             return authResp.access_token
         } else {

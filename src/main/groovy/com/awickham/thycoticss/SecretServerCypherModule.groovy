@@ -29,13 +29,16 @@ class SecretServerCypherModule implements CypherModule {
         if(relativeKey.startsWith("config/")) {
             return null
         } else {
+            String slug = relativeKey.split('/')[-1]
+            String secretPath = relativeKey.replace(("/" + slug), '')
+
             String thycoticUrl = cypher.read("thycoticss/config/url").value
             String thycoticUsername = cypher.read("thycoticss/config/username").value
             String thycoticPassword = cypher.read("thycoticss/config/password").value
             String thycoticToken = SecretServerHelper.getAuthToken(thycoticUrl, thycoticUsername, thycoticPassword)
 
             // search for the secret by the path
-            String encodedKey = java.net.URLEncoder.encode(("/" + relativeKey), 'UTF-8')
+            String encodedKey = java.net.URLEncoder.encode(("/" + secretPath), 'UTF-8')
             String searchPath = "SecretServer/api/v1/secrets/0/?secretPath=" + encodedKey;
             log.debug("Searching for secret from ${searchPath}")
 
@@ -47,7 +50,7 @@ class SecretServerCypherModule implements CypherModule {
                 ServiceResponse resp = RestApiUtil.callApi(thycoticUrl, searchPath, null, null, restOptions, 'GET')
                 if(resp.getSuccess()) {
                     Object searchResponse = slurper.parseText(resp.getContent())
-                    Object passwordField = searchResponse.items.find{ it -> it.slug == 'password' }
+                    Object passwordField = searchResponse.items.find{ it -> it.slug == slug }
 
                     if (passwordField.itemValue == null) {
                         log.error("Could not find value for password field")

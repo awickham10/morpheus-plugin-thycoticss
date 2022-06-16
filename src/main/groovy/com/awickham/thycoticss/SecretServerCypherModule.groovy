@@ -50,13 +50,13 @@ class SecretServerCypherModule implements CypherModule {
                 ServiceResponse resp = RestApiUtil.callApi(thycoticUrl, searchPath, null, null, restOptions, 'GET')
                 if(resp.getSuccess()) {
                     Object searchResponse = slurper.parseText(resp.getContent())
-                    Object passwordField = searchResponse.items.find{ it -> it.slug == slug }
+                    Object field = searchResponse.items.find{ it -> it.slug == slug }
 
-                    if (passwordField.itemValue == null) {
+                    if (field.itemValue == null) {
                         log.error("Could not find value for password field")
                         return null
                     } else {
-                        CypherObject thycoticResult = new CypherObject(key, passwordField.itemValue, leaseTimeout, leaseObjectRef, createdBy)
+                        CypherObject thycoticResult = new CypherObject(key, field.itemValue, leaseTimeout, leaseObjectRef, createdBy)
                         thycoticResult.shouldPersist = false
                         log.debug("Key: " + thycoticResult.key)
                         return thycoticResult

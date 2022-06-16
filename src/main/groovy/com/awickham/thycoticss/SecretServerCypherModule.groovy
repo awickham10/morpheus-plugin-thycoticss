@@ -10,6 +10,7 @@ import com.morpheusdata.cypher.util.RestApiUtil
 import com.morpheusdata.cypher.util.ServiceResponse
 import java.net.URLEncoder
 import groovy.util.logging.Slf4j
+import groovy.json.JsonSlurper
 
 @Slf4j
 class SecretServerCypherModule implements CypherModule {
@@ -23,7 +24,7 @@ class SecretServerCypherModule implements CypherModule {
     public CypherObject read(String relativeKey, String path, Long leaseTimeout, String leaseObjectRef, String createdBy) {
         String key = relativeKey
         if(path != null) {
-            key = "${path}/${key}"
+            key = path + "/" + key;
         }
         if(relativeKey.startsWith("config/")) {
             return null
@@ -33,27 +34,36 @@ class SecretServerCypherModule implements CypherModule {
             String thycoticPassword = cypher.read("thycoticss/config/password").value
             String thycoticToken = SecretServerHelper.getAuthToken(thycoticUrl, thycoticUsername, thycoticPassword)
 
-            String encodedKey = java.net.URLEncoder.encode(relativeKey, 'UTF-8')
-            String thycoticPath = "v1/secrets/0/?secretPath=" + encodedKey;
-            log.info("Retrieving secret from ${thycoticPath}")
+            // search for the secret by the path
+            String encodedKey = java.net.URLEncoder.encode(("/" + relativeKey), 'UTF-8')
+            String searchPath = "SecretServer/api/v1/secrets/0/?secretPath=" + encodedKey;
+            log.debug("Searching for secret from ${searchPath}")
 
             RestApiUtil.RestOptions restOptions = new RestApiUtil.RestOptions()
             restOptions.apiToken = thycoticToken
 
+            JsonSlurper slurper = new JsonSlurper()
             try {
-                ServiceResponse resp = RestApiUtil.callApi(thycoticUrl, thycoticPath, null, null, restOptions, 'GET')
+                ServiceResponse resp = RestApiUtil.callApi(thycoticUrl, searchPath, null, null, restOptions, 'GET')
                 if(resp.getSuccess()) {
-                    ObjectMapper mapper = new ObjectMapper()
+                    Object searchResponse = slurper.parseText(resp.getContent())
+                    Object passwordField = searchResponse.items.find{ it -> it.slug == 'password' }
 
-                    CypherObject thycoticResult = new CypherObject(key, resp.getContent(), leaseTimeout, leaseObjectRef, createdBy)
-                    thycoticResult.shouldPersist = false
-                    return thycoticResult
+                    if (passwordField.itemValue == null) {
+                        log.error("Could not find value for password field")
+                        return null
+                    } else {
+                        CypherObject thycoticResult = new CypherObject(key, passwordField.itemValue, leaseTimeout, leaseObjectRef, createdBy)
+                        thycoticResult.shouldPersist = false
+                        log.debug("Key: " + thycoticResult.key)
+                        return thycoticResult
+                    }
                 } else {
-                    log.error("Error fetching cypher key: ${resp}")
+                    log.error("Error searching for secret: ${resp}")
                     return null //throw exception?
                 }
             } catch(Exception ex) {
-                ex.printStackTrace()
+                log.error("Error: " + ex)
                 return null
             }
         }
@@ -63,21 +73,17 @@ class SecretServerCypherModule implements CypherModule {
     public CypherObject write(String relativeKey, String path, String value, Long leaseTimeout, String leaseObjectRef, String createdBy) {
         String key = relativeKey;
         if(path != null) {
-            key = "${path}/${key}";
+            key = path + "/" + key;
         }
-        if(relativeKey.startsWith("config/")) {
-            log.info("Writing to: ${key}")
-            return new CypherObject(key, value, leaseTimeout, leaseObjectRef, createdBy)
-        } else {
-            // Nothing to do. Secrets will be managed in Secret Server, not through Morpheus.
-            return null
-        }
+        
+        // Nothing to do. Secrets will be managed in Secret Server, not through Morpheus.
+        return new CypherObject(key, value, leaseTimeout, leaseObjectRef, createdBy)
     }
 
     @Override
     public boolean delete(String relativeKey, String path, CypherObject object) {
         // Nothing to do. Secrets will be managed in Secret Server, not through Morpheus.
-        return null
+        return true
     }
 
     @Override

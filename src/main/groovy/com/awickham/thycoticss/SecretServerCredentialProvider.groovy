@@ -41,6 +41,7 @@ class SecretServerCredentialProvider implements CredentialProvider {
      */
     @Override
     ServiceResponse<Map> loadCredentialData(AccountIntegration integration, AccountCredential credential, Map opts) {
+        /*
         String secretPathSuffix = integration.getConfigProperty("secretPath") ?: ''
         String organization = integration.getConfigProperty("organization")
         HttpApiClient apiClient = new HttpApiClient()
@@ -68,19 +69,7 @@ class SecretServerCredentialProvider implements CredentialProvider {
         } finally {
             apiClient.shutdownClient()
         }
-    }
-
-    protected ServiceResponse<String> authToken(HttpApiClient client, AccountIntegration integration) {
-        String username = integration.serviceUsername
-        String apiKey = integration.servicePassword
-        String organization = integration.getConfigProperty("organization")
-
-        def authResults = client.callApi(integration.serviceUrl,"authn/${organization}/${username}/authenticate".toString(),null,null,new HttpApiClient.RequestOptions(headers: ['Accept-Encoding': "base64"], body: apiKey),'POST')
-        if(authResults.success) {
-            return ServiceResponse.success("Token token=\"${authResults.content}\"".toString())
-        } else {
-            return ServiceResponse.error("Authentication Failed with CyberArk Conjur")
-        }
+        */
     }
 
     /**
@@ -92,6 +81,7 @@ class SecretServerCredentialProvider implements CredentialProvider {
      */
     @Override
     ServiceResponse<AccountCredential> deleteCredential(AccountIntegration integration, AccountCredential credential, Map opts) {
+        /*
         String secretPathSuffix = integration.getConfigProperty("secretPath") ?: ''
         String organization = integration.getConfigProperty("organization")
         HttpApiClient apiClient = new HttpApiClient()
@@ -117,6 +107,7 @@ class SecretServerCredentialProvider implements CredentialProvider {
         } finally {
             apiClient.shutdownClient()
         }
+        */
     }
 
     /**
@@ -128,6 +119,7 @@ class SecretServerCredentialProvider implements CredentialProvider {
      */
     @Override
     ServiceResponse<AccountCredential> createCredential(AccountIntegration integration, AccountCredential credential, Map opts) {
+        /*
         String secretPathSuffix = integration.getConfigProperty("secretPath") ?: ''
         String organization = integration.getConfigProperty("organization")
         HttpApiClient apiClient = new HttpApiClient()
@@ -153,6 +145,7 @@ class SecretServerCredentialProvider implements CredentialProvider {
         } finally {
             apiClient.shutdownClient()
         }
+        */
     }
 
     /**
@@ -164,6 +157,7 @@ class SecretServerCredentialProvider implements CredentialProvider {
      */
     @Override
     ServiceResponse<AccountCredential> updateCredential(AccountIntegration integration, AccountCredential credential, Map opts) {
+        /*
         String secretPathSuffix = integration.getConfigProperty("secretPath") ?: ''
         String organization = integration.getConfigProperty("organization")
 
@@ -189,6 +183,7 @@ class SecretServerCredentialProvider implements CredentialProvider {
         } finally {
             apiClient.shutdownClient()
         }
+        */
     }
 
     /**
@@ -205,20 +200,13 @@ class SecretServerCredentialProvider implements CredentialProvider {
     ServiceResponse<Map> verify(AccountIntegration integration, Map opts) {
         HttpApiClient apiClient = new HttpApiClient()
         try {
-            def authResults = authToken(apiClient,integration)
+            def authResults = SecretServerHelper.getAuthToken(apiClient, integration)
             if(authResults.success) {
-
-                def apiResults = apiClient.callApi(integration.serviceUrl,'/whoami',null,null,new HttpApiClient.RequestOptions(headers: ['Authorization': authResults.data]),'GET')
-                if(apiResults.success) {
-                    ServiceResponse<Map> response = new ServiceResponse<>(true,null,null,[:])
-                    return response
-                } else {
-                    return ServiceResponse.error(apiResults.error)
-                }
+                ServiceResponse<Map> response = new ServiceResponse<>(true, null, null, [:])
+                return response
             } else {
                 return ServiceResponse.error(authResults.error)
             }
-
         } finally {
             apiClient.shutdownClient()
         }
@@ -233,9 +221,8 @@ class SecretServerCredentialProvider implements CredentialProvider {
         return [
                 new OptionType(code: 'conjur.serviceUrl', name: 'Service URL', inputType: OptionType.InputType.TEXT, fieldName: 'serviceUrl', fieldLabel: 'API Url', fieldContext: 'domain', displayOrder: 0),
                 new OptionType(code: 'conjur.serviceUsername', name: 'Service Username', inputType: OptionType.InputType.TEXT, fieldName: 'serviceUsername', fieldLabel: 'Username', fieldContext: 'domain', displayOrder: 1),
-                new OptionType(code: 'conjur.serviceApiKey', name: 'Service ApiKey', inputType: OptionType.InputType.PASSWORD, fieldName: 'servicePassword', fieldLabel: 'API Key', fieldContext: 'domain', displayOrder: 2),
-                new OptionType(code: 'conjur.organization', name: 'Organization', inputType: OptionType.InputType.TEXT, fieldName: 'organization', fieldLabel: 'Organization', fieldContext: 'config', displayOrder: 3),
-                new OptionType(code: 'conjur.secretPath', name: 'Secret Path', inputType: OptionType.InputType.TEXT,placeHolderText: 'morpheus-credentials/', fieldName: 'secretPath', fieldLabel: 'Secret Path', fieldContext: 'config', displayOrder: 4)
+                new OptionType(code: 'conjur.servicePassword', name: 'Service Password', inputType: OptionType.InputType.PASSWORD, fieldName: 'servicePassword', fieldLabel: 'Password', fieldContext: 'domain', displayOrder: 2),
+                new OptionType(code: 'conjur.secretPath', name: 'Secret Path', inputType: OptionType.InputType.TEXT,placeHolderText: 'morpheus-credentials/', fieldName: 'secretPath', fieldLabel: 'Secret Path', fieldContext: 'config', displayOrder: 3)
         ]
     }
 
@@ -246,7 +233,7 @@ class SecretServerCredentialProvider implements CredentialProvider {
      */
     @Override
     Icon getIcon() {
-        return new Icon(path:"cyberark.svg", darkPath: "cyberark-white.svg")
+        return new Icon(path:"thycotic-logo.png", darkPath: "thycotic-logo-light.png")
     }
 
     /**
@@ -275,7 +262,7 @@ class SecretServerCredentialProvider implements CredentialProvider {
      */
     @Override
     String getCode() {
-        return "conjur"
+        return "thycoticss"
     }
 
     /**
@@ -286,7 +273,7 @@ class SecretServerCredentialProvider implements CredentialProvider {
      */
     @Override
     String getName() {
-        return "Conjur"
+        return "Thycotic Secret Server"
     }
 
     static protected formatApiName(String name) {

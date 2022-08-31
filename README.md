@@ -15,7 +15,7 @@ Create the below Cypher keys to configure the integration. Once these keys have 
 Read the "username" field from a secret named "My Secert Name" in the folder "My Folder."
 
 ```bash
-from_vault="<%= cypher.read('thycoticss/My Folder/My Secret Name/username') %>"
+from_vault="<%= cypher.read('thycoticss/My Folder/My Secret Name:username') %>"
 echo $from_vault
 ```
 

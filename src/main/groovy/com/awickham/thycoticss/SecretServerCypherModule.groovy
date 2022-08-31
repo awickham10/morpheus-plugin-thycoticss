@@ -22,23 +22,22 @@ class SecretServerCypherModule implements CypherModule {
 
     @Override
     public CypherObject read(String relativeKey, String path, Long leaseTimeout, String leaseObjectRef, String createdBy) {
+        String slug = relativeKey.split(":", 2)[1]
+        relativeKey = relativeKey.split(":", 2)[0]
         String key = relativeKey
         if(path != null) {
-            key = path + "/" + key;
+            key = path + "/" + key
         }
         if(relativeKey.startsWith("config/")) {
             return null
         } else {
-            String slug = relativeKey.split('/')[-1]
-            String secretPath = relativeKey.replace(("/" + slug), '')
-
             String thycoticUrl = cypher.read("thycoticss/config/url").value
             String thycoticUsername = cypher.read("thycoticss/config/username").value
             String thycoticPassword = cypher.read("thycoticss/config/password").value
             String thycoticToken = SecretServerHelper.getAuthToken(thycoticUrl, thycoticUsername, thycoticPassword)
 
             // search for the secret by the path
-            String encodedKey = java.net.URLEncoder.encode(("/" + secretPath), 'UTF-8')
+            String encodedKey = java.net.URLEncoder.encode(("/" + relativeKey), 'UTF-8')
             String searchPath = "SecretServer/api/v1/secrets/0/?secretPath=" + encodedKey;
             log.debug("Searching for secret from ${searchPath}")
 
@@ -51,14 +50,12 @@ class SecretServerCypherModule implements CypherModule {
                 if(resp.getSuccess()) {
                     Object searchResponse = slurper.parseText(resp.getContent())
                     Object field = searchResponse.items.find{ it -> it.slug == slug }
-
-                    if (field.itemValue == null) {
-                        log.error("Could not find value for password field")
+                    if (field == null) {
+                        log.error("Could not find secret field ${slug}")
                         return null
                     } else {
                         CypherObject thycoticResult = new CypherObject(key, field.itemValue, leaseTimeout, leaseObjectRef, createdBy)
                         thycoticResult.shouldPersist = false
-                        log.debug("Key: " + thycoticResult.key)
                         return thycoticResult
                     }
                 } else {

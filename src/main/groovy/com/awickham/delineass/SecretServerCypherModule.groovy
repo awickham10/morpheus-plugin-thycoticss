@@ -1,4 +1,4 @@
-package com.awickham.thycoticss
+package com.awickham.delineass
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -31,10 +31,10 @@ class SecretServerCypherModule implements CypherModule {
         if(relativeKey.startsWith("config/")) {
             return null
         } else {
-            String thycoticUrl = cypher.read("thycoticss/config/url").value
-            String thycoticUsername = cypher.read("thycoticss/config/username").value
-            String thycoticPassword = cypher.read("thycoticss/config/password").value
-            String thycoticToken = SecretServerHelper.getAuthToken(thycoticUrl, thycoticUsername, thycoticPassword)
+            String delineaUrl = cypher.read("delineass/config/url").value
+            String delineaUsername = cypher.read("delineass/config/username").value
+            String delineaPassword = cypher.read("delineass/config/password").value
+            String delineaToken = SecretServerHelper.getAuthToken(delineaUrl, delineaUsername, delineaPassword)
 
             // search for the secret by the path
             String encodedKey = java.net.URLEncoder.encode(("/" + relativeKey), 'UTF-8')
@@ -42,11 +42,11 @@ class SecretServerCypherModule implements CypherModule {
             log.debug("Searching for secret from ${searchPath}")
 
             RestApiUtil.RestOptions restOptions = new RestApiUtil.RestOptions()
-            restOptions.apiToken = thycoticToken
+            restOptions.apiToken = delineaToken
 
             JsonSlurper slurper = new JsonSlurper()
             try {
-                ServiceResponse resp = RestApiUtil.callApi(thycoticUrl, searchPath, null, null, restOptions, 'GET')
+                ServiceResponse resp = RestApiUtil.callApi(delineaUrl, searchPath, null, null, restOptions, 'GET')
                 if(resp.getSuccess()) {
                     Object searchResponse = slurper.parseText(resp.getContent())
                     Object field = searchResponse.items.find{ it -> it.slug == slug }
@@ -54,9 +54,9 @@ class SecretServerCypherModule implements CypherModule {
                         log.error("Could not find secret field ${slug}")
                         return null
                     } else {
-                        CypherObject thycoticResult = new CypherObject(key, field.itemValue, leaseTimeout, leaseObjectRef, createdBy)
-                        thycoticResult.shouldPersist = false
-                        return thycoticResult
+                        CypherObject delineaResult = new CypherObject(key, field.itemValue, leaseTimeout, leaseObjectRef, createdBy)
+                        delineaResult.shouldPersist = false
+                        return delineaResult
                     }
                 } else {
                     log.error("Error searching for secret: ${resp}")
@@ -88,7 +88,7 @@ class SecretServerCypherModule implements CypherModule {
 
     @Override
     public String getUsage() {
-        return "This allows secret data to be fetched from a Thycotic Secret Server integration. This can be configured in the thycoticss/config key setup"
+        return "This allows secret data to be fetched from a Delinea Secret Server integration. This can be configured in the delineass/config key setup"
     }
 
     @Override

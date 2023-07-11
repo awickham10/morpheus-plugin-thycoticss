@@ -1,3 +1,14 @@
+# logs
+/stacktrace.log
+/test/reports
+/logs
+
+# project release file
+/*.war
+
+# "temporary" build files
+/target
+
 build/
 .gradle
 .DS_Store

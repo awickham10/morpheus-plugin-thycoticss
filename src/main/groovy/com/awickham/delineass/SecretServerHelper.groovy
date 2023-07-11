@@ -1,4 +1,4 @@
-package com.awickham.thycoticss
+package com.awickham.delineass
 
 import com.morpheusdata.core.util.HttpApiClient
 import com.morpheusdata.cypher.util.RestApiUtil
@@ -10,16 +10,16 @@ import groovy.util.logging.Slf4j
 
 @Slf4j
 class SecretServerHelper {
-    static String getAuthToken(String thycoticUrl, String thycoticUsername, String thycoticPassword) {
+    static String getAuthToken(String delineaUrl, String delineaUsername, String delineaPassword) {
         RestApiUtil.RestOptions restOptions = new RestApiUtil.RestOptions()
         restOptions.body = [
-            username: thycoticUsername,
-            password: thycoticPassword,
+            username: delineaUsername,
+            password: delineaPassword,
             grant_type: "password"
         ]
         restOptions.contentType = 'form'
         log.debug("Getting token with request: ${restOptions.body}")
-        com.morpheusdata.cypher.util.ServiceResponse resp = RestApiUtil.callApi(thycoticUrl, "SecretServer/oauth2/token", null, null, restOptions, "POST")
+        com.morpheusdata.cypher.util.ServiceResponse resp = RestApiUtil.callApi(delineaUrl, "SecretServer/oauth2/token", null, null, restOptions, "POST")
         if(resp.getSuccess()) {
             JsonSlurper slurper = new JsonSlurper()
             Object authResp = slurper.parseText(resp.getContent())
@@ -37,7 +37,7 @@ class SecretServerHelper {
         if(authResults != null) {
             return ServiceResponse.success(authResults)
         } else {
-            return ServiceResponse.error("Authentication failed with Thycotic Secret Server")
+            return ServiceResponse.error("Authentication failed with Delinea Secret Server")
         }
     }
 }

@@ -1,21 +1,21 @@
-## Thycotic Secret Server Plugin
+## Delinea Secret Server Plugin
 
-This is a Morpheus plugin for interacting with `Thycotic Secret Server`. This plugin enables the ability to store secure credentials for various tasks remotely in a secure store external to Morpheus and Cypher. This utilizes Secret Server's API.
+This is a Morpheus plugin for interacting with `Delinea Secret Server`. This plugin enables the ability to store secure credentials for various tasks remotely in a secure store external to Morpheus and Cypher. This utilizes Secret Server's API.
 
 ### Using With Cypher
 Create the below Cypher keys to configure the integration. Once these keys have been created, secrets can be read in tasks using the cypher.read function. Any field can be read by using the field slug. Common field slugs include: domain, username, password.
 
 | Key | Description | Example |
 | --- | ----------- | ------- |
-| thycoticss/config/url | Base URL of the Thycotic Secret Server | https://myserver.mydomain.com/ |
-| thycoticss/config/username | Username to perform OAuth 2.0 authentication with | MyUsername |
-| thycoticss/config/password | Password to perform OAuth 2.0 authentication with | MySup3rP@55w0rd! |
+| delineass/config/url | Base URL of the Delinea Secret Server | https://myserver.mydomain.com/ |
+| delineass/config/username | Username to perform OAuth 2.0 authentication with | MyUsername |
+| delineass/config/password | Password to perform OAuth 2.0 authentication with | MySup3rP@55w0rd! |
 
 #### Example 
 Read the "username" field from a secret named "My Secert Name" in the folder "My Folder."
 
 ```bash
-from_vault="<%= cypher.read('thycoticss/My Folder/My Secret Name:username') %>"
+from_vault="<%= cypher.read('delineass/My Folder/My Secret Name:username') %>"
 echo $from_vault
 ```
 

@@ -1,4 +1,4 @@
-package com.awickham.thycoticss
+package com.awickham.delineass
 
 import com.morpheusdata.core.CypherModuleProvider
 import com.morpheusdata.core.MorpheusContext
@@ -21,7 +21,7 @@ class SecretServerCypherProvider implements CypherModuleProvider{
 
     @Override
     String getCypherMountPoint() {
-        return 'thycoticss'
+        return 'delineass'
     }
 
     @Override
@@ -31,11 +31,11 @@ class SecretServerCypherProvider implements CypherModuleProvider{
 
     @Override
     String getCode() {
-        return 'thycoticss-cypher'
+        return 'delineass-cypher'
     }
 
     @Override
     String getName() {
-        return 'Thycotic Secret Server'
+        return 'Delinea Secret Server'
     }
 }
